@@ -103,3 +103,107 @@ const Component = styled(Text)<MyCompProps>((theme, { bold }) => ({
   },
 }));
 ```
+
+**Example for accessing styled Component using Theme Provider**
+
+```tsx
+// Button.tsx
+import React, { FC } from 'react';
+import { TouchableOpacity } from 'react-native';
+
+interface ButtonProps extends TouchableOpacityProps {
+  title: string;
+  onPress: any;
+}
+
+const Button: FC<ButtonProps> = ({ children, onPress, ...rest }) => {
+  return (
+    <TouchableOpacity onPress={onPress} {...rest}>
+      {children}
+    </TouchableOpacity>
+  );
+};
+
+export default Button;
+
+
+// theme.tsx
+import { createTheme, Theme } from '@rneui/themed';
+import { ButtonProps } from './Button';
+
+interface LightColors {
+  tertiary: string;
+  accent: string;
+  surface: string;
+}
+
+interface DarkColors {
+  tertiary: string;
+  accent: string;
+  surface: string;
+}
+
+interface Components {
+  Button: React.ComponentType<ButtonProps>;
+}
+
+interface CustomTheme extends Theme {
+  lightColors: LightColors;
+  darkColors: DarkColors;
+  components: Components;
+  mode: 'light' | 'dark';
+}
+
+const theme: CustomTheme = createTheme({
+  lightColors: {
+    tertiary: '#124789',
+    accent: '#f98652',
+    surface: '#0990763',
+  },
+  darkColors: {
+    tertiary: '#124789',
+    accent: '#908652',
+    surface: '#0990763',
+  },
+  components: {
+    Button, // Use the Button component directly in the theme
+  },
+  mode: 'light', // or 'dark'
+});
+
+export default theme;
+
+
+// Component.tsx
+import React, { FC } from 'react';
+import { useTheme } from '@rneui/themed';
+import { ButtonProps } from './Button';
+
+export const Component: FC = () => {
+  const { theme } = useTheme();
+  const { Button } = theme.components;
+
+  const handleButtonPress = () => {
+    // Handle button press here
+    console.log('Button pressed!');
+  };
+
+  return <Button title="Click Me" onPress={handleButtonPress} />;
+};
+
+
+// App.tsx
+import React, { FC } from 'react';
+import { ThemeProvider } from '@rneui/themed';
+import theme from './theme';
+import { Component } from './Component';
+
+const App: FC = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <Component />
+    </ThemeProvider>
+  );
+};
+
+export default App;
